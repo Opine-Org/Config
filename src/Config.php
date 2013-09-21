@@ -1,4 +1,6 @@
 <?php
+namespace Config;
+
 class Config {
 	private static $storage = [];
 	private static $attempted = [];
@@ -14,6 +16,9 @@ class Config {
 				
 			case 2:
 				return Config::append($config, $args[0], $args[1]);
+
+			case 3:
+				return Config::append($config, $args[0], $args[1], $args[2]);
 		}
 	}
 
@@ -28,7 +33,7 @@ class Config {
 		return [];
 	}
 
-	private static function append ($config, $key, $value) {
+	private static function append ($config, $key, $value, $mode='replace') {
 		if (!isset(self::$attempted[$config]) && !isset(self::$storage[$config])) {
 			self::$attempted[$config] = true;
 			Config::set($config);
@@ -38,7 +43,11 @@ class Config {
 		} elseif (!is_array(self::$storage[$config][$key])) {
 			throw new Exception ('Can not append to a config variable that is not an array.');
 		}
-		self::$storage[$config][$key][] = $value;
+		if ($mode == 'push') {
+			self::$storage[$config][$key][] = $value;
+		} else {
+			self::$storage[$config][$key] = $value;
+		}
 	}
 	
 	private static function set($config, array $instance=[]) {
