@@ -1,9 +1,19 @@
 <?php
 namespace Config;
+use Cache\Cache;
 
 class Config {
 	private static $storage = [];
 	private static $attempted = [];
+	private static $noCache = false;
+
+	public static function cacheToggle () {
+		if (self::$noCache) {
+			self::$noCache = false;
+		} else {
+			self::$noCache = true;
+		}
+	}
 	
 	public static function __callstatic($config, $args=[]) {
 		$argCount = count($args);
@@ -24,7 +34,6 @@ class Config {
 
 	private static function get($config) {
 		if (!isset(self::$attempted[$config]) && !isset(self::$storage[$config])) {
-			self::$attempted[$config] = true;
 			Config::set($config);
 		}
 		if (isset(self::$storage[$config])) {
@@ -50,34 +59,31 @@ class Config {
 		}
 	}
 	
-	private static function set($config, array $instance=[]) {
+	private static function set($config, Array $instance=[]) {
 		self::$attempted[$config] = true;
 		if (isset(self::$storage[$config])) {
 			self::$storage[$config] = array_merge(self::$storage[$config], $instance);
 			return; 
 		}
+		$root = !empty($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : $_SERVER['PWD'];
 		$project = [];
-		$theme = [];
-		$configData = [];
-		$themeName = 'basic';
+		if (self::$noCache == true || self::fromMemory($project, $root . '-config-' . $config) == false) {
+			self::fromPath($project, $root . '/config/' . $config . '.php');
+		}
+		self::$storage[$config] = array_merge($project, $instance);
+	}
 
-		self::initCB($instance);
-		self::fromPath($project, $_SERVER['DOCUMENT_ROOT'] . '/config/' . $config . '.php');
-		self::$storage[$config] = array_merge($configData, $theme, $project, $instance);
+	private static function fromMemory (&$data, $key) {
+		$data = Cache::factory()->get($key, MEMCACHE_COMPRESSED);
+		if ($data !== false) {
+			$data = unserialize($data);
+		}
 	}
 
 	private static function fromPath (&$data, $path) {
 		if (!file_exists($path)) {
 			return [];
 		}
-		$data = include $path;		
-		self::initCB($data);
-	}
-
-	private static function initCB (&$data) {
-		if (isset($data['initCB'])) {
-			$cb = $data['initCB'];
-			$data = $cb($data);
-		}
+		$data = include $path;
 	}
 }
