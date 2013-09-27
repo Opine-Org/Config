@@ -65,7 +65,7 @@ class Config {
 			self::$storage[$config] = array_merge(self::$storage[$config], $instance);
 			return; 
 		}
-		$root = !empty($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : $_SERVER['PWD'];
+		$root = !empty($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : getcwd();
 		$project = [];
 		if (self::$noCache == true || self::fromMemory($project, $root . '-config-' . $config) == false) {
 			self::fromPath($project, $root . '/config/' . $config . '.php');
