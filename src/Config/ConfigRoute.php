@@ -16,7 +16,7 @@ class ConfigRoute {
 			} catch (\Exception $e) {
 				continue;
 			}
-			Cache::factory()->set($key, $data, MEMCACHE_COMPRESSED, 0);
+			Cache::factory()->set($key, $data, 2, 0);
 		}
 		Config::cacheToggle();
 	}

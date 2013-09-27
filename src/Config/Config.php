@@ -74,7 +74,7 @@ class Config {
 	}
 
 	private static function fromMemory (&$data, $key) {
-		$data = Cache::factory()->get($key, MEMCACHE_COMPRESSED);
+		$data = Cache::factory()->get($key, 2);
 		if ($data !== false) {
 			$data = unserialize($data);
 		}
