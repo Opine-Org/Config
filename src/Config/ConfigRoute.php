@@ -1,23 +1,31 @@
 <?php
 namespace Config;
-use Cache\Cache;
 
 class ConfigRoute {
-	public static function build ($root) {
+	private $cache;
+	private $config;
+
+	public function __construct ($config, $cache) {
+		$this->config = $config;
+		$this->cache = $cache;
+	}
+
+	public function build ($root) {
 		$dirFiles = glob($root . '/config/*.php');
-		Config::cacheToggle();
+		$this->config->cacheToggle();
+		$configObj = $this->config;
 		foreach ($dirFiles as $config) {
 			$config = basename($config, '.php');
 			$key = $root . '-config-' . $config;
-			Cache::factory()->delete($key);
-			$data = call_user_func(['Config\Config', $config]);
+			$this->cache->delete($key);
+			$data = $configObj::get($config);
 			try {
 				$data = serialize($data);
 			} catch (\Exception $e) {
 				continue;
 			}
-			Cache::factory()->set($key, $data, 2, 0);
+			$this->cache->set($key, $data, 2, 0);
 		}
-		Config::cacheToggle();
+		$this->config->cacheToggle();
 	}
 }

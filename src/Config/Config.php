@@ -1,13 +1,17 @@
 <?php
 namespace Config;
-use Cache\Cache;
 
 class Config {
 	private static $storage = [];
 	private static $attempted = [];
 	private static $noCache = false;
+	private static $cache = false;
 
-	public static function cacheToggle () {
+	public function __construct ($cache) {
+		self::$cache = $cache;
+	}
+
+	public function cacheToggle () {
 		if (self::$noCache) {
 			self::$noCache = false;
 		} else {
@@ -32,7 +36,7 @@ class Config {
 		}
 	}
 
-	private static function get($config) {
+	public static function get($config) {
 		if (!isset(self::$attempted[$config]) && !isset(self::$storage[$config])) {
 			Config::set($config);
 		}
@@ -42,7 +46,7 @@ class Config {
 		return [];
 	}
 
-	private static function append ($config, $key, $value, $mode='replace') {
+	public static function append ($config, $key, $value, $mode='replace') {
 		if (!isset(self::$attempted[$config]) && !isset(self::$storage[$config])) {
 			self::$attempted[$config] = true;
 			Config::set($config);
@@ -59,7 +63,7 @@ class Config {
 		}
 	}
 	
-	private static function set($config, Array $instance=[]) {
+	public static function set($config, Array $instance=[]) {
 		self::$attempted[$config] = true;
 		if (isset(self::$storage[$config])) {
 			self::$storage[$config] = array_merge(self::$storage[$config], $instance);
@@ -73,14 +77,14 @@ class Config {
 		self::$storage[$config] = array_merge($project, $instance);
 	}
 
-	private static function fromMemory (&$data, $key) {
-		$data = Cache::factory()->get($key, 2);
+	public static function fromMemory (&$data, $key) {
+		$data = self::$cache->get($key, 2);
 		if ($data !== false) {
 			$data = unserialize($data);
 		}
 	}
 
-	private static function fromPath (&$data, $path) {
+	public static function fromPath (&$data, $path) {
 		if (!file_exists($path)) {
 			return [];
 		}
