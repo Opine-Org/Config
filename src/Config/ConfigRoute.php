@@ -11,7 +11,7 @@ class ConfigRoute {
 	}
 
 	public function build ($root) {
-		$dirFiles = glob($root . '/config/*.php');
+		$dirFiles = glob($root . '/../config/*.php');
 		$this->config->cacheToggle();
 		$configObj = $this->config;
 		foreach ($dirFiles as $config) {
