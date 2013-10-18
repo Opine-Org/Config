@@ -2,89 +2,56 @@
 namespace Config;
 
 class Config {
-	private static $storage = [];
-	private static $attempted = [];
-	private static $noCache = false;
-	private static $cache = false;
+	private $root;
+	private $storage = [];
+	private $attempted = [];
+	private $noCache = false;
+	private $cache = false;
 
-	public function __construct ($cache) {
-		self::$cache = $cache;
+	public function __construct ($root, $cache) {
+		$this->root = $root;
+		$this->cache = $cache;
 	}
 
 	public function cacheToggle () {
-		if (self::$noCache) {
-			self::$noCache = false;
+		if ($this->noCache) {
+			$this->noCache = false;
 		} else {
-			self::$noCache = true;
-		}
-	}
-	
-	public static function __callstatic($config, $args=[]) {
-		$argCount = count($args);
-		switch ($argCount) {
-			case 0:
-				return Config::get($config);
-				
-			case 1:
-				return Config::set($config, $args[0]);
-				
-			case 2:
-				return Config::append($config, $args[0], $args[1]);
-
-			case 3:
-				return Config::append($config, $args[0], $args[1], $args[2]);
+			$this->noCache = true;
 		}
 	}
 
-	public static function get($config) {
-		if (!isset(self::$attempted[$config]) && !isset(self::$storage[$config])) {
-			Config::set($config);
+	public function __get ($config) {
+		if (!isset($this->attempted[$config]) && !isset($this->storage[$config])) {
+			$this->set($config);
 		}
-		if (isset(self::$storage[$config])) {
-			return self::$storage[$config];
+		if (isset($this->storage[$config])) {
+			return $this->$storage[$config];
 		}
 		return [];
 	}
 
-	public static function append ($config, $key, $value, $mode='replace') {
-		if (!isset(self::$attempted[$config]) && !isset(self::$storage[$config])) {
-			self::$attempted[$config] = true;
-			Config::set($config);
-		}
-		if (!isset(self::$storage[$config][$key])) {
-			self::$storage[$config][$key] = []; 
-		} elseif (!is_array(self::$storage[$config][$key])) {
-			throw new Exception ('Can not append to a config variable that is not an array.');
-		}
-		if ($mode == 'push') {
-			self::$storage[$config][$key][] = $value;
-		} else {
-			self::$storage[$config][$key] = $value;
-		}
-	}
-	
-	public static function set($config, Array $instance=[]) {
-		self::$attempted[$config] = true;
-		if (isset(self::$storage[$config])) {
-			self::$storage[$config] = array_merge(self::$storage[$config], $instance);
+	public function __set ($config, Array $instance=[]) {
+		$this->attempted[$config] = true;
+		if (isset($this->storage[$config])) {
+			$this->storage[$config] = new \ArrayObject(array_merge($this->storage[$config], $instance));
 			return; 
 		}
-		$root = !empty($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : getcwd();
 		$project = [];
-		if (self::$noCache == true || self::fromMemory($project, $root . '-config-' . $config) == false) {
-			self::fromPath($project, $root . '/../config/' . $config . '.php');
+		if ($this->noCache == true || $this->fromMemory($project, $this->root . '-config-' . $config) === false) {
+			$this->fromPath($project, $this->root . '/../config/' . $config . '.php');
 		}
-		self::$storage[$config] = array_merge($project, $instance);
+		$this->storage[$config] = new \ArrayObject(array_merge($project, $instance));
 	}
 
-	public static function fromMemory (&$data, $key) {
-		$data = self::$cache->get($key, 2);
+	private function fromMemory (&$data, $key) {
+		$data = $this->cache->get($key, 2);
 		if ($data !== false) {
 			$data = unserialize($data);
 		}
 	}
 
-	public static function fromPath (&$data, $path) {
+	private function fromPath (&$data, $path) {
 		if (!file_exists($path)) {
 			return [];
 		}
