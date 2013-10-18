@@ -11,21 +11,19 @@ class ConfigRoute {
 	}
 
 	public function build ($root) {
+		$configObject = $this->config;
 		$dirFiles = glob($root . '/../config/*.php');
-		$this->config->cacheToggle();
-		$configObj = $this->config;
 		foreach ($dirFiles as $config) {
 			$config = basename($config, '.php');
 			$key = $root . '-config-' . $config;
 			$this->cache->delete($key);
-			$data = $configObj::get($config);
+			$data = $configObject->fromDisk($config);
 			try {
-				$data = serialize($data);
+				$data = serialize((array)$data);
 			} catch (\Exception $e) {
 				continue;
 			}
 			$this->cache->set($key, $data, 2, 0);
 		}
-		$this->config->cacheToggle();
 	}
 }
