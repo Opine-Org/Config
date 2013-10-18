@@ -3,14 +3,16 @@ namespace Config;
 
 class Config {
 	private $root;
-	private $storage = [];
-	private $attempted = [];
+	private $storage;
+	private $attempted;
 	private $noCache = false;
 	private $cache = false;
 
 	public function __construct ($root, $cache) {
 		$this->root = $root;
 		$this->cache = $cache;
+		$this->storage = new \ArrayObject();
+		$this->attempted = new \ArrayObject();
 	}
 
 	public function cacheToggle () {
@@ -26,7 +28,7 @@ class Config {
 			$this->__set($config);
 		}
 		if (isset($this->storage[$config])) {
-			return $this->$storage[$config];
+			return $this->storage[$config];
 		}
 		return [];
 	}
