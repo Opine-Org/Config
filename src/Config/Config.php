@@ -23,7 +23,7 @@ class Config {
 
 	public function __get ($config) {
 		if (!isset($this->attempted[$config]) && !isset($this->storage[$config])) {
-			$this->set($config);
+			$this->__set($config);
 		}
 		if (isset($this->storage[$config])) {
 			return $this->$storage[$config];
@@ -48,7 +48,9 @@ class Config {
 		$data = $this->cache->get($key, 2);
 		if ($data !== false) {
 			$data = unserialize($data);
+			return true;
 		}
+		return false;
 	}
 
 	private function fromPath (&$data, $path) {
