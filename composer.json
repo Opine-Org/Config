@@ -1,7 +1,7 @@
 {
-    "name": "virtuecenter/config",
+    "name": "opine/config",
     "type": "library",
-    "description": "Utility for reading configurations from disk",
+    "description": "Utility for reading/accesing configurations from disk and caching them in memory",
     "keywords": [],
     "license": "MIT",
     "authors": [
@@ -16,6 +16,6 @@
     	"php": ">=5.4.0"
     },
     "autoload": {
-        "psr-0": {"Config": "src/"}
+        "psr-4": {"Opine\\": "src/"}
     }
 }

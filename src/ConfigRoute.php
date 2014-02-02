@@ -1,6 +1,6 @@
 <?php
 /**
- * virtuecenter\build
+ * Opine\ConfigRoute
  *
  * Copyright (c)2013 Ryan Mahoney, https://github.com/virtuecenter <ryan@virtuecenter.com>
  *
@@ -22,31 +22,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Config;
+namespace Opine;
 
 class ConfigRoute {
-	private $cache;
-	private $config;
+    private $cache;
+    private $config;
 
-	public function __construct ($config, $cache) {
-		$this->config = $config;
-		$this->cache = $cache;
-	}
+    public function __construct ($config, $cache) {
+        $this->config = $config;
+        $this->cache = $cache;
+    }
 
-	public function build ($root) {
-		$configObject = $this->config;
-		$dirFiles = glob($root . '/../config/*.php');
-		foreach ($dirFiles as $config) {
-			$config = basename($config, '.php');
-			$key = $root . '-config-' . $config;
-			$this->cache->delete($key);
-			$data = $configObject->fromDisk($config);
-			try {
-				$data = serialize((array)$data);
-			} catch (\Exception $e) {
-				continue;
-			}
-			$this->cache->set($key, $data, 2, 0);
-		}
-	}
+    public function build ($root) {
+        $configObject = $this->config;
+        $dirFiles = glob($root . '/../config/*.php');
+        foreach ($dirFiles as $config) {
+            $config = basename($config, '.php');
+            $key = $root . '-config-' . $config;
+            $this->cache->delete($key);
+            $data = $configObject->fromDisk($config);
+            try {
+                $data = serialize((array)$data);
+            } catch (\Exception $e) {
+                continue;
+            }
+            $this->cache->set($key, $data, 2, 0);
+        }
+    }
 }
