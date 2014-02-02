@@ -2,7 +2,7 @@
     "name": "opine/config",
     "type": "library",
     "description": "Utility for reading/accesing configurations from disk and caching them in memory",
-    "keywords": [],
+    "keywords": ["Configuration", "Cache"],
     "license": "MIT",
     "authors": [
         {
