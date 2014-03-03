@@ -31,9 +31,13 @@ class Config {
     private $_noCache = false;
     private $_cache = false;
     private $_id;
+    private $_separator = '/../';
 
     public function __construct ($root, $cache) {
         $this->_root = $root;
+        if (substr($this->_root, -7) != '/public') {
+            $this->_separator = '/';
+        }
         $this->_cache = $cache;
         $this->_storage = new \ArrayObject();
         $this->_attempted = new \ArrayObject();
@@ -58,7 +62,7 @@ class Config {
         }
         $project = [];
         if ($this->fromMemory($project, $this->_root . '-config-' . $config) === false) {
-            $this->fromPath($project, $this->_root . '/../config/' . $config . '.php');
+            $this->fromPath($project, $this->_root . $this->_separator . 'config/' . $config . '.php');
         }
         if (!is_array($project)) {
             if (is_array($instance)) {
@@ -89,6 +93,6 @@ class Config {
     }
 
     public function fromDisk ($config) {
-        return include $this->_root . '/../config/' . $config . '.php'; 
+        return include $this->_root . $this->_separator . 'config/' . $config . '.php'; 
     }
 }
