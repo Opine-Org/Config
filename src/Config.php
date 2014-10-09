@@ -23,6 +23,7 @@
  * THE SOFTWARE.
  */
 namespace Opine;
+use ArrayObject;
 
 class Config {
     private $_root;
@@ -39,8 +40,8 @@ class Config {
             $this->_separator = '/';
         }
         $this->_cache = $cache;
-        $this->_storage = new \ArrayObject();
-        $this->_attempted = new \ArrayObject();
+        $this->_storage = new ArrayObject();
+        $this->_attempted = new ArrayObject();
         $this->_id = uniqid();
     }
 
@@ -57,7 +58,7 @@ class Config {
     public function __set ($config, Array $instance=[]) {
         $this->_attempted[$config] = true;
         if (isset($this->_storage[$config])) {
-            $this->_storage[$config] = new \ArrayObject(array_merge($this->_storage[$config], $instance));
+            $this->_storage[$config] = new ArrayObject(array_merge($this->_storage[$config], $instance));
             return;
         }
         $project = [];
@@ -66,17 +67,20 @@ class Config {
         }
         if (!is_array($project)) {
             if (is_array($instance)) {
-                $this->_storage[$config] = new \ArrayObject($instance);
+                $this->_storage[$config] = new ArrayObject($instance);
                 return;
             } else {
-                $this->_storage[$config] = new \ArrayObject();
+                $this->_storage[$config] = new ArrayObject();
                 return;
             }
         }
-        $this->_storage[$config] = new \ArrayObject(array_merge($project, $instance));
+        $this->_storage[$config] = new ArrayObject(array_merge($project, $instance));
     }
 
     private function fromMemory (&$data, $key) {
+        if (!is_object($this->_cache)) {
+            return false;
+        }
         $data = $this->_cache->get($key, 2);
         if ($data !== false) {
             $data = unserialize($data);
