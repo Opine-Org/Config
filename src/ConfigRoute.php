@@ -46,7 +46,7 @@ class ConfigRoute {
             } catch (\Exception $e) {
                 continue;
             }
-            $this->cache->set($key, $data, 2, 0);
+            $this->cache->set($key, $data);
         }
     }
 }
