@@ -1,6 +1,6 @@
 services:
     cache:
-        class:     'Opine\Cache'
+        class:     'Opine\Cache\Service'
     topic:
         class:     'Opine\Topic'
         arguments: ['@container']
@@ -11,4 +11,4 @@ services:
         class:     'Opine\Mongo'
         arguments: ['@config', '@topic']
     yamlSlow:
-        class:     'Symfony\Component\Yaml\Yaml
+        class:     'Symfony\Component\Yaml\Yaml'

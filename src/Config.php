@@ -22,10 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Opine;
+namespace Opine\Config;
 use ArrayObject;
 
-class Config {
+class Service {
     private $_root;
     private $_storage;
     private $_attempted;
@@ -58,7 +58,7 @@ class Config {
     public function __set ($config, Array $instance=[]) {
         $this->_attempted[$config] = true;
         if (isset($this->_storage[$config])) {
-            $this->_storage[$config] = new ArrayObject(array_merge($this->_storage[$config], $instance));
+            $this->_storage[$config] = new ArrayObject(array_merge((array)$this->_storage[$config], $instance));
             return;
         }
         $project = [];

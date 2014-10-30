@@ -1,7 +1,7 @@
 {
     "name": "opine\/config",
     "type": "library",
-    "description": "Utility for reading\/accesing configurations from disk and caching them in memory",
+    "description": "Service for reading\/accesing configurations from disk and caching them in memory",
     "keywords": [
         "Configuration",
         "Cache"
@@ -21,7 +21,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Opine\\": "src\/"
+            "Opine\\Config\\": "src\/"
         }
     }
 }
