@@ -23,80 +23,27 @@
  * THE SOFTWARE.
  */
 namespace Opine\Config;
-use ArrayObject;
 
 class Service {
-    private $_root;
-    private $_storage;
-    private $_attempted;
-    private $_noCache = false;
     private $_cache = false;
-    private $_id;
-    private $_separator = '/../';
+    private $_model;
 
-    public function __construct ($root, $cache) {
-        $this->_root = $root;
-        if (substr($this->_root, -7) != '/public') {
-            $this->_separator = '/';
-        }
-        $this->_cache = $cache;
-        $this->_storage = new ArrayObject();
-        $this->_attempted = new ArrayObject();
-        $this->_id = uniqid();
+    public function __construct ($model) {
+        $this->_model = $model;
     }
 
-    public function __get ($config) {
-        if (!isset($this->_attempted[$config]) && !isset($this->_storage[$config])) {
-            $this->__set($config);
-        }
-        if (isset($this->_storage[$config])) {
-            return $this->_storage[$config];
-        }
-        return [];
-    }
-
-    public function __set ($config, Array $instance=[]) {
-        $this->_attempted[$config] = true;
-        if (isset($this->_storage[$config])) {
-            $this->_storage[$config] = new ArrayObject(array_merge((array)$this->_storage[$config], $instance));
+    public function cacheSet ($config) {
+        if (empty($config)) {
+            $this->_cache = $this->_model->getCacheFileData();
             return;
         }
-        $project = [];
-        if ($this->fromMemory($project, $this->_root . '-config-' . $config) === false) {
-            $this->fromPath($project, $this->_root . $this->_separator . 'config/' . $config . '.php');
-        }
-        if (!is_array($project)) {
-            if (is_array($instance)) {
-                $this->_storage[$config] = new ArrayObject($instance);
-                return;
-            } else {
-                $this->_storage[$config] = new ArrayObject();
-                return;
-            }
-        }
-        $this->_storage[$config] = new ArrayObject(array_merge($project, $instance));
+        $this->_cache = $config;
     }
 
-    private function fromMemory (&$data, $key) {
-        if (!is_object($this->_cache)) {
+    public function __get ($key) {
+        if (!isset($this->_cache[$key])) {
             return false;
         }
-        $data = $this->_cache->get($key, 2);
-        if ($data !== false) {
-            $data = unserialize($data);
-            return true;
-        }
-        return false;
-    }
-
-    private function fromPath (&$data, $path) {
-        if (!file_exists($path)) {
-            return [];
-        }
-        $data = include $path;
-    }
-
-    public function fromDisk ($config) {
-        return include $this->_root . $this->_separator . 'config/' . $config . '.php'; 
+        return $this->_cache[$key];;
     }
 }

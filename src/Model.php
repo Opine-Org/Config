@@ -1,6 +1,6 @@
 <?php
 /**
- * Opine\ConfigRoute
+ * Opine\Config\Model
  *
  * Copyright (c)2013, 2014 Ryan Mahoney, https://github.com/Opine-Org <ryan@virtuecenter.com>
  *
@@ -23,30 +23,71 @@
  * THE SOFTWARE.
  */
 namespace Opine\Config;
+use Exception;
 
 class Model {
+    private $root;
     private $cache;
-    private $config;
 
-    public function __construct ($config, $cache) {
-        $this->config = $config;
+    public function __construct ($root, $cache) {
+        $this->root = $root;
         $this->cache = $cache;
+        $this->cacheFile = $this->root . '/../cache/config.json';
     }
 
-    public function build ($root) {
-        $configObject = $this->config;
-        $dirFiles = glob($root . '/../config/*.php');
-        foreach ($dirFiles as $config) {
-            $config = basename($config, '.php');
-            $key = $root . '-config-' . $config;
-            $this->cache->delete($key);
-            $data = $configObject->fromDisk($config);
-            try {
-                $data = serialize((array)$data);
-            } catch (\Exception $e) {
-                continue;
-            }
-            $this->cache->set($key, $data);
+    public function getCacheFileData () {
+        if (!file_exists($this->cacheFile)) {
+            return [];
         }
+        $config = (array)json_decode(file_get_contents($this->cacheFile), true);
+        $environment = 'default';
+        if (isset($_SERVER['OPINE-ENV'])) {
+            $environment = $_SERVER['OPINE-ENV'];
+        }
+        if (isset($config[$environment])) {
+            return $config[$environment];
+        } elseif (isset($config['default'])) {
+            return $config['default'];
+        }
+        return [];
+    }
+
+    public function build () {
+        $config['default'] = $this->processFolder($this->root . '/../config');
+        $environments = glob($this->root . '/../config/*', GLOB_ONLYDIR);
+        if ($environments != false) {
+            foreach ($environments as $directory) {
+                $env = explode('/', $directory);
+                $env = array_pop($env);
+                $config[$env] = $this->processFolder($directory);
+                foreach ($config[$env] as $configName => $value) {
+                    if (!isset($config['default'][$configName])) {
+                        continue;
+                    }
+                    $config[$env][$configName] = array_merge($config['default'][$configName], $config[$env][$configName]);
+                }
+                foreach ($config['default'] as $configName => $value) {
+                    if (isset($config[$env][$configName])) {
+                        continue;
+                    }
+                    $config[$env][$configName] = $value;
+                }
+            }
+        }
+        $this->cache->set($this->root . '-config', json_encode($config));
+        file_put_contents($this->cacheFile, json_encode($config, JSON_PRETTY_PRINT));
+    }
+
+    public function processFolder ($folder) {
+        $files = glob($folder . '/*.php');
+        if ($files === false) {
+            return [];
+        }
+        $data = [];
+        foreach ($files as $configFile) {
+            $configName = basename($configFile, '.php');
+            $data[$configName] = include $configFile;
+        }
+        return $data;
     }
 }
