@@ -10,10 +10,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,13 +23,15 @@
  * THE SOFTWARE.
  */
 namespace Opine\Config;
+
 use Exception;
+use Opine\Interfaces\Cache as CacheInterface;
 
 class Model {
     private $root;
     private $cache;
 
-    public function __construct ($root, $cache) {
+    public function __construct ($root, CacheInterface $cache) {
         $this->root = $root;
         $this->cache = $cache;
         $this->cacheFile = $this->root . '/../cache/config.json';
@@ -41,8 +43,13 @@ class Model {
         }
         $config = (array)json_decode(file_get_contents($this->cacheFile), true);
         $environment = 'default';
-        if (isset($_SERVER['OPINE-ENV'])) {
-            $environment = $_SERVER['OPINE-ENV'];
+        if (isset($_SERVER['OPINE_ENV'])) {
+            $environment = $_SERVER['OPINE_ENV'];
+        } else {
+            $test = getenv('OPINE_ENV');
+            if ($test !== false) {
+                $environment = $test;
+            }
         }
         if (isset($config[$environment])) {
             return $config[$environment];
@@ -78,7 +85,7 @@ class Model {
         file_put_contents($this->cacheFile, json_encode($config, JSON_PRETTY_PRINT));
     }
 
-    public function processFolder ($folder) {
+    private function processFolder ($folder) {
         $files = glob($folder . '/*.php');
         if ($files === false) {
             return [];

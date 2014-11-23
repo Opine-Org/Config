@@ -1,6 +1,6 @@
 <?php
 /**
- * Opine\Config
+ * Opine\Config\Service
  *
  * Copyright (c)2013, 2014 Ryan Mahoney, https://github.com/Opine-Org <ryan@virtuecenter.com>
  *
@@ -24,26 +24,33 @@
  */
 namespace Opine\Config;
 
-class Service {
-    private $_cache = false;
-    private $_model;
+use Opine\Config\Model;
+use Opine\Cache\Service as Cache;
+use Opine\Interfaces\Config as ConfigInterface;
 
-    public function __construct ($model) {
-        $this->_model = $model;
+class Service implements ConfigInterface {
+    private $cache = false;
+    private $root;
+
+    public function __construct ($root) {
+        $this->root = $root;
     }
 
-    public function cacheSet ($config) {
+    public function cacheSet (Array $config=[]) {
         if (empty($config)) {
-            $this->_cache = $this->_model->getCacheFileData();
-            return;
+            $model = new Model($this->root, new Cache());
+            $model->build();
+            $this->cache = $model->getCacheFileData();
+            return true;
         }
-        $this->_cache = $config;
+        $this->cache = $config;
+        return true;
     }
 
-    public function __get ($key) {
-        if (!isset($this->_cache[$key])) {
+    public function get ($key) {
+        if (!isset($this->cache[$key])) {
             return false;
         }
-        return $this->_cache[$key];;
+        return $this->cache[$key];
     }
 }

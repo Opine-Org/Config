@@ -1,17 +1,27 @@
 <?php
-namespace Opine;
+namespace Opine\Config;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase {
-    private $db;
+use PHPUnit_Framework_TestCase;
+use Opine\Config\Service as Config;
+use Opine\Config\Model as Model;
 
-    public function setup () {
-        date_default_timezone_set('UTC');
-        $root = __DIR__;
-        $container = new Container($root, $root . '/container.yml');
-        $this->db = $container->db;
+class ConfigTest extends PHPUnit_Framework_TestCase {
+
+    public function testConfig () {
+        $config = new Config(__DIR__ . '/../public');
+        $this->assertTrue($config->cacheSet());
+        $config = $config->get('db');
+        $this->assertTrue(is_array($config));
+        $this->assertTrue('phpunit' === $config['name']);
     }
 
-    public function testSample () {
-        $this->assertTrue(true);
+    public function testLayeredConfig () {
+        $_SERVER['OPINE_ENV'] = 'dev';
+        $config = new Config(__DIR__ . '/../public');
+        $this->assertTrue($config->cacheSet());
+        $config = $config->get('db');
+        $this->assertTrue(is_array($config));
+        $this->assertTrue('phpunit' === $config['name']);
+        $this->assertTrue('yes' === $config['blended']);
     }
 }
