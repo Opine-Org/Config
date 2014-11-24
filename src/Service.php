@@ -49,7 +49,7 @@ class Service implements ConfigInterface {
 
     public function get ($key) {
         if (!isset($this->cache[$key])) {
-            return false;
+            return [];
         }
         return $this->cache[$key];
     }
