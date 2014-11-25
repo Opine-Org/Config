@@ -34,7 +34,7 @@ class Model {
     public function __construct ($root, CacheInterface $cache) {
         $this->root = $root;
         $this->cache = $cache;
-        $this->cacheFile = $this->root . '/../cache/config.json';
+        $this->cacheFile = $this->root . '/../var/cache/config.json';
     }
 
     public function getCacheFileData () {
@@ -60,12 +60,15 @@ class Model {
     }
 
     public function build () {
-        $config['default'] = $this->processFolder($this->root . '/../config');
-        $environments = glob($this->root . '/../config/*', GLOB_ONLYDIR);
+        $config['default'] = $this->processFolder($this->root . '/../configs');
+        $environments = glob($this->root . '/../configs/*', GLOB_ONLYDIR);
         if ($environments != false) {
             foreach ($environments as $directory) {
                 $env = explode('/', $directory);
                 $env = array_pop($env);
+                if ($env === 'layouts') {
+                    continue;
+                }
                 $config[$env] = $this->processFolder($directory);
                 foreach ($config[$env] as $configName => $value) {
                     if (!isset($config['default'][$configName])) {
