@@ -60,13 +60,13 @@ class Model {
     }
 
     public function build () {
-        $config['default'] = $this->processFolder($this->root . '/../configs');
-        $environments = glob($this->root . '/../configs/*', GLOB_ONLYDIR);
+        $config['default'] = $this->processFolder($this->root . '/../config');
+        $environments = glob($this->root . '/../config/*', GLOB_ONLYDIR);
         if ($environments != false) {
             foreach ($environments as $directory) {
                 $env = explode('/', $directory);
                 $env = array_pop($env);
-                if ($env === 'layouts') {
+                if (in_array($env, ['layouts', 'managers', 'collections', 'forms'])) {
                     continue;
                 }
                 $config[$env] = $this->processFolder($directory);
