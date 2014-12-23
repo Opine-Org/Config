@@ -1,8 +1,9 @@
-[![Stories in Ready](https://badge.waffle.io/Opine-Org/Config.png?label=ready&title=Ready)](https://waffle.io/Opine-Org/Config)
 Config
 ======
 
 Utility for reading/accesing layered configurations from disk and caching them in memory.
+
+[![Stories in Ready](https://badge.waffle.io/Opine-Org/Config.png?label=ready&title=Ready)](https://waffle.io/Opine-Org/Config)
 
 [![Build Status](https://travis-ci.org/Opine-Org/Config.svg?branch=master)](https://travis-ci.org/Opine-Org/Config)
 

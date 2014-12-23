@@ -1,7 +1,0 @@
-services:
-    config:
-        class:     'Opine\Config\Service'
-        arguments: ['%root%']
-    configModel:
-        class:     'Opine\Config\Model'
-        arguments: ['%root%', '@cache']

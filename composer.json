@@ -16,7 +16,8 @@
     "require": {
         "php": ">=5.5.0",
         "opine/interfaces": "dev-master",
-        "opine/cache": "dev-master"
+        "opine/cache": "2.0.1",
+        "symfony/yaml": "2.6.1"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.32"

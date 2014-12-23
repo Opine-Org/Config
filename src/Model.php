@@ -26,15 +26,19 @@ namespace Opine\Config;
 
 use Exception;
 use Opine\Interfaces\Cache as CacheInterface;
+use Symfony\Component\Yaml\Yaml;
 
 class Model {
     private $root;
     private $cache;
+    private $cacheFile;
+    private $cacheFolder;
 
     public function __construct ($root, CacheInterface $cache) {
         $this->root = $root;
         $this->cache = $cache;
         $this->cacheFile = $this->root . '/../var/cache/config.json';
+        $this->cacheFolder = $this->root . '/../var/cache';
     }
 
     public function getCacheFileData () {
@@ -60,8 +64,8 @@ class Model {
     }
 
     public function build () {
-        $config['default'] = $this->processFolder($this->root . '/../config');
-        $environments = glob($this->root . '/../config/*', GLOB_ONLYDIR);
+        $config['default'] = $this->processFolder($this->root . '/../config/settings');
+        $environments = glob($this->root . '/../config/settings/*', GLOB_ONLYDIR);
         if ($environments != false) {
             foreach ($environments as $directory) {
                 $env = explode('/', $directory);
@@ -85,19 +89,36 @@ class Model {
             }
         }
         $this->cache->set($this->root . '-config', json_encode($config));
+        if (!file_exists($this->cacheFolder)) {
+            mkdir($this->cacheFolder, 0777, true);
+        }
         file_put_contents($this->cacheFile, json_encode($config, JSON_PRETTY_PRINT));
     }
 
     private function processFolder ($folder) {
-        $files = glob($folder . '/*.php');
+        $files = glob($folder . '/*.yml');
         if ($files === false) {
             return [];
         }
         $data = [];
         foreach ($files as $configFile) {
-            $configName = basename($configFile, '.php');
-            $data[$configName] = include $configFile;
+            $configName = basename($configFile, '.yml');
+            $config = $this->yaml($configFile);
+            if ($config === false) {
+                throw new Exception('error in YAML file: ' . $configFile);
+            }
+            if (!isset($config['settings'])) {
+                throw new Exception('all config files must be under the settings key: ' . $configFile);
+            }
+            $data[$configName] = $config['settings'];
         }
         return $data;
+    }
+
+    private function yaml ($configFile) {
+        if (function_exists('yaml_parse_file')) {
+            return yaml_parse_file($configFile);
+        }
+        return Yaml::parse(file_get_contents($configFile));
     }
 }
