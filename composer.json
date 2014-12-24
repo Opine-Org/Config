@@ -4,7 +4,6 @@
     "description": "Service for reading/accesing configurations from disk and caching them in memory",
     "keywords": ["Configuration", "Cache"],
     "license": "MIT",
-    "minimum-stability": "dev",
     "authors": [
         {
             "name"    : "Ryan Mahoney",
@@ -16,7 +15,7 @@
     "require": {
         "php"             : ">=5.5.0",
         "opine/interfaces": "1.0.0",
-        "opine/cache"     : "2.0.3",
+        "opine/cache"     : "2.0.4",
         "symfony/yaml"    : "2.6.1"
     },
     "require-dev": {
@@ -27,5 +26,5 @@
             "Opine\\Config\\": "src/"
         }
     },
-    "version": "3.0.0"
+    "version": "3.0.1"
 }
