@@ -24,33 +24,39 @@
  */
 namespace Opine\Config;
 
-use Opine\Config\Model;
 use Opine\Cache\Service as Cache;
 use Opine\Interfaces\Config as ConfigInterface;
 
-class Service implements ConfigInterface {
+class Service implements ConfigInterface
+{
     private $cache = false;
     private $root;
 
-    public function __construct ($root) {
+    public function __construct($root)
+    {
         $this->root = $root;
     }
 
-    public function cacheSet (Array $config=[]) {
+    public function cacheSet(Array $config = [])
+    {
         if (empty($config)) {
             $model = new Model($this->root, new Cache());
             $model->build();
             $this->cache = $model->getCacheFileData();
+
             return true;
         }
         $this->cache = $config;
+
         return true;
     }
 
-    public function get ($key) {
+    public function get($key)
+    {
         if (!isset($this->cache[$key])) {
             return [];
         }
+
         return $this->cache[$key];
     }
 }

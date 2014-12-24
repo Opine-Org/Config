@@ -28,24 +28,27 @@ use Exception;
 use Opine\Interfaces\Cache as CacheInterface;
 use Symfony\Component\Yaml\Yaml;
 
-class Model {
+class Model
+{
     private $root;
     private $cache;
     private $cacheFile;
     private $cacheFolder;
 
-    public function __construct ($root, CacheInterface $cache) {
+    public function __construct($root, CacheInterface $cache)
+    {
         $this->root = $root;
         $this->cache = $cache;
-        $this->cacheFile = $this->root . '/../var/cache/config.json';
-        $this->cacheFolder = $this->root . '/../var/cache';
+        $this->cacheFile = $this->root.'/../var/cache/config.json';
+        $this->cacheFolder = $this->root.'/../var/cache';
     }
 
-    public function getCacheFileData () {
+    public function getCacheFileData()
+    {
         if (!file_exists($this->cacheFile)) {
             return [];
         }
-        $config = (array)json_decode(file_get_contents($this->cacheFile), true);
+        $config = (array) json_decode(file_get_contents($this->cacheFile), true);
         $environment = 'default';
         if (isset($_SERVER['OPINE_ENV'])) {
             $environment = $_SERVER['OPINE_ENV'];
@@ -60,12 +63,14 @@ class Model {
         } elseif (isset($config['default'])) {
             return $config['default'];
         }
+
         return [];
     }
 
-    public function build () {
-        $config['default'] = $this->processFolder($this->root . '/../config/settings');
-        $environments = glob($this->root . '/../config/settings/*', GLOB_ONLYDIR);
+    public function build()
+    {
+        $config['default'] = $this->processFolder($this->root.'/../config/settings');
+        $environments = glob($this->root.'/../config/settings/*', GLOB_ONLYDIR);
         if ($environments != false) {
             foreach ($environments as $directory) {
                 $env = explode('/', $directory);
@@ -88,7 +93,7 @@ class Model {
                 }
             }
         }
-        $this->cache->set($this->root . '-config', json_encode($config));
+        $this->cache->set($this->root.'-config', json_encode($config));
         if (!file_exists($this->cacheFolder)) {
             echo $this->cacheFolder, "\n";
             exit;
@@ -97,8 +102,9 @@ class Model {
         file_put_contents($this->cacheFile, json_encode($config, JSON_PRETTY_PRINT));
     }
 
-    private function processFolder ($folder) {
-        $files = glob($folder . '/*.yml');
+    private function processFolder($folder)
+    {
+        $files = glob($folder.'/*.yml');
         if ($files === false) {
             return [];
         }
@@ -107,20 +113,23 @@ class Model {
             $configName = basename($configFile, '.yml');
             $config = $this->yaml($configFile);
             if ($config === false) {
-                throw new Exception('error in YAML file: ' . $configFile);
+                throw new Exception('error in YAML file: '.$configFile);
             }
             if (!isset($config['settings'])) {
-                throw new Exception('all config files must be under the settings key: ' . $configFile);
+                throw new Exception('all config files must be under the settings key: '.$configFile);
             }
             $data[$configName] = $config['settings'];
         }
+
         return $data;
     }
 
-    private function yaml ($configFile) {
+    private function yaml($configFile)
+    {
         if (function_exists('yaml_parse_file')) {
             return yaml_parse_file($configFile);
         }
+
         return Yaml::parse(file_get_contents($configFile));
     }
 }
