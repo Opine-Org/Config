@@ -90,6 +90,8 @@ class Model {
         }
         $this->cache->set($this->root . '-config', json_encode($config));
         if (!file_exists($this->cacheFolder)) {
+            echo $this->cacheFolder, "\n";
+            exit;
             mkdir($this->cacheFolder, 0777, true);
         }
         file_put_contents($this->cacheFile, json_encode($config, JSON_PRETTY_PRINT));
