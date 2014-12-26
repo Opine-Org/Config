@@ -14,8 +14,8 @@
     ],
     "require": {
         "php"             : ">=5.5.0",
-        "opine/interfaces": "1.0.1",
-        "opine/cache"     : "2.0.4",
+        "opine/interfaces": "~1.0",
+        "opine/cache"     : "~2.0",
         "symfony/yaml"    : "2.6.1"
     },
     "require-dev": {
@@ -26,5 +26,5 @@
             "Opine\\Config\\": "src/"
         }
     },
-    "version": "3.0.2"
+    "version": "3.0.6"
 }
