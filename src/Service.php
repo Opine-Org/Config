@@ -40,7 +40,7 @@ class Service implements ConfigInterface
     public function cacheSet(Array $config = [])
     {
         if (empty($config)) {
-            $model = new Model($this->root, new Cache());
+            $model = new Model($this->root, new Cache($this->root));
             $model->build();
             $this->cache = $model->getCacheFileData();
 

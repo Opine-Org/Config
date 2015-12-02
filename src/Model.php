@@ -50,13 +50,9 @@ class Model
         }
         $config = (array) json_decode(file_get_contents($this->cacheFile), true);
         $environment = 'default';
-        if (isset($_SERVER['OPINE_ENV'])) {
-            $environment = $_SERVER['OPINE_ENV'];
-        } else {
-            $test = getenv('OPINE_ENV');
-            if ($test !== false) {
-                $environment = $test;
-            }
+        $test = getenv('OPINE_ENV');
+        if ($test !== false) {
+            $environment = $test;
         }
         if (isset($config[$environment])) {
             return $config[$environment];

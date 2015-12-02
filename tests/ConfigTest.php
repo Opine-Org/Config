@@ -16,7 +16,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 
     public function testLayeredConfig()
     {
-        $_SERVER['OPINE_ENV'] = 'dev';
+        putenv('OPINE_ENV=dev');
         $config = new Config(__DIR__.'/../public');
         $this->assertTrue($config->cacheSet());
         $config = $config->get('db');
