@@ -34,6 +34,9 @@ class Model
     private $cache;
     private $cacheFile;
     private $cacheFolder;
+    private $environment;
+    private $projectName;
+    private $cachePrefix;
 
     public function __construct($root, CacheInterface $cache)
     {
@@ -41,6 +44,22 @@ class Model
         $this->cache = $cache;
         $this->cacheFile = $this->root.'/../var/cache/config.json';
         $this->cacheFolder = $this->root.'/../var/cache';
+
+        // set environment
+        $this->environment = 'default';
+        $test = getenv('OPINE_ENV');
+        if ($test !== false) {
+            $this->environment = $test;
+        }
+
+        // set environment
+        $this->projectName = 'project';
+        $test = getenv('OPINE_PROJECT');
+        if ($test !== false) {
+            $this->projectName = $test;
+        }
+
+        $this->cachePrefix = $this->projectName . $this->environment;
     }
 
     public function getCacheFileData()
@@ -49,13 +68,8 @@ class Model
             return [];
         }
         $config = (array) json_decode(file_get_contents($this->cacheFile), true);
-        $environment = 'default';
-        $test = getenv('OPINE_ENV');
-        if ($test !== false) {
-            $environment = $test;
-        }
-        if (isset($config[$environment])) {
-            return $config[$environment];
+        if (isset($config[$this->environment])) {
+            return $config[$this->environment];
         } elseif (isset($config['default'])) {
             return $config['default'];
         }
@@ -89,7 +103,7 @@ class Model
                 }
             }
         }
-        $this->cache->set($this->root.'-config', json_encode($config));
+        $this->cache->set($this->cachePrefix.'-config', json_encode($config));
         if (!file_exists($this->cacheFolder)) {
             mkdir($this->cacheFolder, 0777, true);
         }
