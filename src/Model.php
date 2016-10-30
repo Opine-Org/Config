@@ -38,7 +38,7 @@ class Model
     private $projectName;
     private $cachePrefix;
 
-    public function __construct($root, CacheInterface $cache)
+    public function __construct(string $root, CacheInterface $cache)
     {
         $this->root = $root;
         $this->cache = $cache;
@@ -103,6 +103,7 @@ class Model
                 }
             }
         }
+
         $this->cache->set($this->cachePrefix.'-config', json_encode($config));
         if (!file_exists($this->cacheFolder)) {
             mkdir($this->cacheFolder, 0777, true);
@@ -134,10 +135,6 @@ class Model
 
     private function yaml($configFile)
     {
-        if (function_exists('yaml_parse_file')) {
-            return yaml_parse_file($configFile);
-        }
-
         return Yaml::parse(file_get_contents($configFile));
     }
 }

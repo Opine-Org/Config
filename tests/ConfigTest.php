@@ -3,11 +3,14 @@ namespace Opine\Config;
 
 use PHPUnit_Framework_TestCase;
 use Opine\Config\Service as Config;
+
 class ConfigTest extends PHPUnit_Framework_TestCase
 {
+    const ROOT = __DIR__.'/../public';
+
     public function testConfig()
     {
-        $config = new Config(__DIR__.'/../public');
+        $config = new Config(self::ROOT);
         $this->assertTrue($config->cacheSet());
         $config = $config->get('db');
         $this->assertTrue(is_array($config));
@@ -17,7 +20,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
     public function testLayeredConfig()
     {
         putenv('OPINE_ENV=dev');
-        $config = new Config(__DIR__.'/../public');
+        $config = new Config(self::ROOT);
         $this->assertTrue($config->cacheSet());
         $config = $config->get('db');
         $this->assertTrue(is_array($config));
