@@ -25,6 +25,5 @@
         "psr-4": {
             "Opine\\Config\\": "src/"
         }
-    },
-    "version": "3.0.14"
+    }
 }
