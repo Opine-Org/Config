@@ -14,7 +14,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($config->cacheSet());
         $config = $config->get('db');
         $this->assertTrue(is_array($config));
-        $this->assertTrue('phpunit' === $config['name']);
+        $this->assertTrue('a' === $config['dsn']);
     }
 
     public function testLayeredConfig()
@@ -24,7 +24,13 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($config->cacheSet());
         $config = $config->get('db');
         $this->assertTrue(is_array($config));
-        $this->assertTrue('phpunit' === $config['name']);
-        $this->assertTrue('yes' === $config['blended']);
+        $this->assertTrue('q' === $config['dsn']);
+    }
+
+    public function testNestedGet() {
+        $config = new Config(self::ROOT);
+        $this->assertTrue($config->cacheSet());
+        $dsn = $config->get('db.dsn');
+        $this->assertTrue('q' === $dsn);
     }
 }

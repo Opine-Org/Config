@@ -53,8 +53,19 @@ class Service implements ConfigInterface
 
     public function get($key)
     {
+        if (substr_count($key, '.') == 1) {
+            $parts = explode('.', $key);
+            if (!isset($this->cache[$parts[0]])) {
+                return null;
+            }
+            if (!isset($this->cache[$parts[0]][$parts[1]])) {
+                return null;
+            }
+            return $this->cache[$parts[0]][$parts[1]];
+        }
+
         if (!isset($this->cache[$key])) {
-            return [];
+            return null;
         }
 
         return $this->cache[$key];

@@ -1,3 +1,4 @@
 settings:
-    name: phpunit
-    conn: mongodb://unit:test@localhost/phpunit
+    dsn: a
+    username: b
+    password: c

@@ -125,7 +125,7 @@ class Model
                 throw new Exception('error in YAML file: '.$configFile);
             }
             if (!isset($config['settings'])) {
-                throw new Exception('all config files must be under the settings key: '.$configFile);
+                throw new Exception('all config files must be under the top level settings key: '.$configFile);
             }
             $data[$configName] = $config['settings'];
         }

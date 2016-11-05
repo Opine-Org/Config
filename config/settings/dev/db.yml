@@ -1,2 +1,4 @@
 settings:
-    blended: yes
+    dsn: q
+    username: r
+    password: s
