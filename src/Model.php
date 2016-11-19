@@ -2,7 +2,7 @@
 /**
  * Opine\Config\Model
  *
- * Copyright (c)2013, 2014 Ryan Mahoney, https://github.com/Opine-Org <ryan@virtuecenter.com>
+ * Copyright (c)2013, 2014, 2015, 2016, 2017 Ryan Mahoney, https://github.com/Opine-Org <ryan@virtuecenter.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -79,31 +79,44 @@ class Model
 
     public function build()
     {
+        // establish the default folder
         $config['default'] = $this->processFolder($this->root.'/../config/settings');
-        $environments = glob($this->root.'/../config/settings/*', GLOB_ONLYDIR);
-        if ($environments != false) {
-            foreach ($environments as $directory) {
-                $env = explode('/', $directory);
-                $env = array_pop($env);
-                if (in_array($env, ['layouts', 'managers', 'collections', 'forms'])) {
+
+        // environments are represented by sub-folders with one level of depth
+        $environments = glob($this->root.'/../config/settings/*', GLOB_ONLYDIR) ?: [];
+
+        // loop through each environment
+        foreach ($environments as $directory) {
+            // the environment name is the last piece of each path
+            $env = explode('/', $directory);
+            $env = array_pop($env);
+
+            // process the sub-folder
+            $config[$env] = $this->processFolder($directory);
+
+            // merge the values with the default values for each config
+            foreach ($config[$env] as $configName => $value) {
+                if (!isset($config['default'][$configName])) {
                     continue;
                 }
-                $config[$env] = $this->processFolder($directory);
-                foreach ($config[$env] as $configName => $value) {
-                    if (!isset($config['default'][$configName])) {
-                        continue;
-                    }
-                    $config[$env][$configName] = array_merge($config['default'][$configName], $config[$env][$configName]);
+                $config[$env][$configName] = array_merge($config['default'][$configName], $config[$env][$configName]);
+            }
+
+            // if the default has any configurations not in the environment, add those too
+            foreach ($config['default'] as $configName => $value) {
+                if (isset($config[$env][$configName])) {
+                    continue;
                 }
-                foreach ($config['default'] as $configName => $value) {
-                    if (isset($config[$env][$configName])) {
-                        continue;
-                    }
-                    $config[$env][$configName] = $value;
-                }
+                $config[$env][$configName] = $value;
             }
         }
 
+        // if the current environment is not present, derive it from the default
+        if (!isset($config[$this->environment])) {
+            $config[$this->environment] = $config['default'];
+        }
+
+        // cache this information for future reference
         $this->cache->set($this->cachePrefix.'-config', json_encode($config));
         if (!file_exists($this->cacheFolder)) {
             mkdir($this->cacheFolder, 0777, true);
