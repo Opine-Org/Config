@@ -108,6 +108,14 @@ class Model
         if (!isset($config[$environment])) {
             $config[$environment] = $config['default'];
         }
+
+        // replace the variable __ROOT__ if it is set in any value
+        array_walk_recursive($config, function (&$value) {
+            if (strpos($value, '__ROOT__') !== false) {
+                $value = str_replace('__ROOT__', $this->root, $value);
+            }
+        });
+
         $projectName = self::project();
         $cachePrefix = $projectName . $environment;
 
