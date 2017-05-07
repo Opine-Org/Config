@@ -34,9 +34,16 @@ class Model
     private $cache;
     private $cacheFile;
     private $cacheFolder;
-    private $environment;
-    private $projectName;
-    private $cachePrefix;
+
+    private static function environment()
+    {
+        return empty(getenv('OPINE_ENV')) ? 'dev' : getenv('OPINE_ENV');
+    }
+
+    private static function project()
+    {
+        return empty(getenv('OPINE_PROJECT')) ? 'project' : getenv('OPINE_PROJECT');
+    }
 
     public function __construct(string $root, CacheInterface $cache)
     {
@@ -44,22 +51,6 @@ class Model
         $this->cache = $cache;
         $this->cacheFile = $this->root.'/../var/cache/config.json';
         $this->cacheFolder = $this->root.'/../var/cache';
-
-        // set environment
-        $this->environment = 'default';
-        $test = getenv('OPINE_ENV');
-        if ($test !== false) {
-            $this->environment = $test;
-        }
-
-        // set environment
-        $this->projectName = 'project';
-        $test = getenv('OPINE_PROJECT');
-        if ($test !== false) {
-            $this->projectName = $test;
-        }
-
-        $this->cachePrefix = $this->projectName . $this->environment;
     }
 
     public function getCacheFileData()
@@ -67,9 +58,10 @@ class Model
         if (!file_exists($this->cacheFile)) {
             return [];
         }
+        $environment = self::environment();
         $config = (array) json_decode(file_get_contents($this->cacheFile), true);
-        if (isset($config[$this->environment])) {
-            return $config[$this->environment];
+        if (isset($config[$environment])) {
+            return $config[$environment];
         } elseif (isset($config['default'])) {
             return $config['default'];
         }
@@ -112,12 +104,15 @@ class Model
         }
 
         // if the current environment is not present, derive it from the default
-        if (!isset($config[$this->environment])) {
-            $config[$this->environment] = $config['default'];
+        $environment = self::environment();
+        if (!isset($config[$environment])) {
+            $config[$environment] = $config['default'];
         }
+        $projectName = self::project();
+        $cachePrefix = $projectName . $environment;
 
         // cache this information for future reference
-        $this->cache->set($this->cachePrefix.'-config', json_encode($config));
+        $this->cache->set($cachePrefix.'-config', json_encode($config));
         if (!file_exists($this->cacheFolder)) {
             mkdir($this->cacheFolder, 0777, true);
         }
